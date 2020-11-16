@@ -4,7 +4,7 @@ or I probably just gave you the link.
 
 Either way... leave me a github star and help me reach fame by 2025.
 
-My name is Christopher Palmer and I a dude living in Sydney, Australia who loves code.
+My name is Christopher Palmer and I am a dude living in Sydney, Australia who loves code.
 As a job, I work for Deltatre as a go backend programmer (aka digital plumber).
 In my spare time I am taking the [fast.ai](fast.ai) course to learn some AI!
 I also love electronics (not good at it) and have two raspberry pis which I
