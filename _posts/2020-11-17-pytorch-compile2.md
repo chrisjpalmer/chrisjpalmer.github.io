@@ -1,4 +1,4 @@
-# Compiling PyTorch 1.7.0 for Raspberry Pi 3 (Part 2)
+# Compiling PyTorch 1.7.0 for Raspberry Pi 3B (Part 2)
 
 Okay new plan required.. didn't bother upgrading the compiler on the raspberry pi 3, that looks pretty hard.
 It turns out that the GCC running on my raspberry pi is 6.3.0. I tried running `sudo apt-get install -t stretch gcc` but I don't think they are currently shipping a later version of the GCC to rpi.
