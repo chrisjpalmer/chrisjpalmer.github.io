@@ -1,4 +1,4 @@
-# Building PyTorch 1.7.0 for Raspberry Pi 3B (Part 3)
+# Compiling PyTorch 1.7.0 for Raspberry Pi 3B (Part 3)
 
 
 Time to do witchcraft (aka cross compilation for arm). And what's more.. using docker!
