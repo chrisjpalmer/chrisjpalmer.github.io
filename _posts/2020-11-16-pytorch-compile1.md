@@ -13,6 +13,7 @@ make[2]: *** [confu-deps/XNNPACK/CMakeFiles/XNNPACK.dir/src/qs8-gemm/gen/1x8c4-m
 
 Doing some research I have tracked down that the issue is unsupported architecture on the GCC compiler. I think I need to upgrade my GCC to 9.3 at least. I found this by simply scanning the gcc docs for the problem architecture armv8.2-a+dotprod.
 
-Not present in the 7.2.0 docs: https://gcc.gnu.org/onlinedocs/gcc-7.2.0/gcc/ARM-Options.html#ARM-Options
-Is present in the 9.3.0 docs: https://gcc.gnu.org/onlinedocs/gcc-9.3.0/gcc/ARM-Options.html#ARM-Options
+1. Not present in the 7.2.0 docs: https://gcc.gnu.org/onlinedocs/gcc-7.2.0/gcc/ARM-Options.html#ARM-Options
+2. Is present in the 9.3.0 docs: https://gcc.gnu.org/onlinedocs/gcc-9.3.0/gcc/ARM-Options.html#ARM-Options
+
 Will have a crack at updating my GCC and see where that leads!
