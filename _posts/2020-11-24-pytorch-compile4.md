@@ -5,7 +5,7 @@ Still following these two articles BUT this time a different setup.
 2. https://www.spinellis.gr/blog/20200317/index.html
 
 Setup:
-1. Overpowered windows computer with skylake 6 core intel processor, 16 Gb of RAM
+1. Overpowered windows computer with skylake 8700k 6 core intel processor (which means 12 cores thanks to hyperthreading), 16 Gb of RAM
 2. virtual box running fedora
 3. running the following script in virtual box
 
@@ -22,6 +22,8 @@ echo 'nameserver 8.8.8.8' > /etc/resolv.conf
 
 git clone --depth=1 --recursive --branch=v1.7.0 https://github.com/pytorch/pytorch
 cd pytorch
+
+export MAX_JOBS=6 # because I gave my virtual box machine 6 cores of my 12 core system
 
 # Disable features that don't make sense on a Pi
 export USE_CUDA=0
