@@ -9,7 +9,7 @@ Setup:
 2. virtual box running fedora
 3. running the following script in virtual box
 
-```
+```sh
 sudo dnf install qemu-system-arm qemu-user-static virt-manager
 sudo dnf install --releasever=30 --installroot=/virt/F30ARM --forcearch=armv7hl --repo=fedora --repo=updates systemd passwd dnf fedora-release vim-minimal openblas-devel blas-devel m4 cmake python3-Cython python3-devel python3-yaml python3-pillow python3-setuptools python3-numpy python3-cffi python3-wheel gcc-c++ tar gcc git make tmux -y
 
@@ -39,3 +39,17 @@ export BUILD_TEST=0
 python setup.py bdist_wheel
 ```
 
+And for torch vision:
+```sh
+sudo mount -o bind /dev /virt/F30ARM/dev # run in a different terminal not in the chroot
+
+# install pytorch from the wheel we just made
+cd dist
+pip3 install torch-1.7.0a0-cp37-cp37m-linux_armv7l.whl
+cd ../../
+
+# make the vision wheel
+git clone  --depth=1 --recursive --branch=v0.8.1 https://github.com/pytorch/vision
+cd vision
+python setup.py bdist_wheel
+```
