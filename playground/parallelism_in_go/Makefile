@@ -10,6 +10,9 @@ bench-cpubound-moreworkers:
 bench-cpuboundv2:
 	cd parallel && go test -run=^$$ -bench ^BenchmarkDoCPUBoundWorkV2$$ .
 
+bench-cpuboundv2-count3:
+	cd parallel && go test -count=3 -run=^$$ -bench ^BenchmarkDoCPUBoundWorkV2$$ .	
+
 bench-cpubound-moreworkersv2:
 	cd parallel && go test -run=^$$ -bench ^BenchmarkDoCPUBoundWorkMoreWorkersV2$$ .
 
