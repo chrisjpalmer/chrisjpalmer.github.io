@@ -1,0 +1,193 @@
+cd parallel && go test -run=^$ -bench ^BenchmarkDoCPUBoundWorkV2$ .
+goos: darwin
+goarch: amd64
+pkg: github.com/chrisjpalmer/techblog/playground/parallelism_in_go/parallel
+cpu: Intel(R) Core(TM) i9-9880H CPU @ 2.30GHz
+BenchmarkDoCPUBoundWorkV2/workers_1-16         	      1	33709055191 ns/op
+BenchmarkDoCPUBoundWorkV2/workers_2-16         	      1	19156281220 ns/op
+BenchmarkDoCPUBoundWorkV2/workers_3-16         	      1	14038006922 ns/op
+BenchmarkDoCPUBoundWorkV2/workers_4-16         	      1	11751739832 ns/op
+BenchmarkDoCPUBoundWorkV2/workers_5-16         	      1	10502081657 ns/op
+BenchmarkDoCPUBoundWorkV2/workers_6-16         	      1	10180027441 ns/op
+BenchmarkDoCPUBoundWorkV2/workers_7-16         	      1	9550128559 ns/op
+BenchmarkDoCPUBoundWorkV2/workers_8-16         	      1	9624339730 ns/op
+BenchmarkDoCPUBoundWorkV2/workers_9-16         	      1	9655058543 ns/op
+BenchmarkDoCPUBoundWorkV2/workers_10-16        	      1	9324992733 ns/op
+BenchmarkDoCPUBoundWorkV2/workers_11-16        	      1	9683987131 ns/op
+BenchmarkDoCPUBoundWorkV2/workers_12-16        	      1	9962816055 ns/op
+BenchmarkDoCPUBoundWorkV2/workers_13-16        	      1	9989483161 ns/op
+BenchmarkDoCPUBoundWorkV2/workers_14-16        	      1	9767315306 ns/op
+BenchmarkDoCPUBoundWorkV2/workers_15-16        	      1	9475710713 ns/op
+BenchmarkDoCPUBoundWorkV2/workers_16-16        	      1	9386205402 ns/op
+BenchmarkDoCPUBoundWorkV2/workers_17-16        	      1	9162719885 ns/op
+BenchmarkDoCPUBoundWorkV2/workers_18-16        	      1	9298515469 ns/op
+BenchmarkDoCPUBoundWorkV2/workers_19-16        	      1	9001105018 ns/op
+BenchmarkDoCPUBoundWorkV2/workers_20-16        	      1	9311521626 ns/op
+BenchmarkDoCPUBoundWorkV2/workers_21-16        	      1	9199383195 ns/op
+BenchmarkDoCPUBoundWorkV2/workers_22-16        	      1	8996444426 ns/op
+BenchmarkDoCPUBoundWorkV2/workers_23-16        	      1	9268432621 ns/op
+BenchmarkDoCPUBoundWorkV2/workers_24-16        	      1	8966924183 ns/op
+PASS
+ok  	github.com/chrisjpalmer/techblog/playground/parallelism_in_go/parallel	269.591s
+cd parallel && go test -run=^$ -bench ^BenchmarkDoCPUBoundWorkMoreWorkersV2$ .
+goos: darwin
+goarch: amd64
+pkg: github.com/chrisjpalmer/techblog/playground/parallelism_in_go/parallel
+cpu: Intel(R) Core(TM) i9-9880H CPU @ 2.30GHz
+BenchmarkDoCPUBoundWorkMoreWorkersV2/workers_1-16         	      1	34629931940 ns/op
+BenchmarkDoCPUBoundWorkMoreWorkersV2/workers_100-16       	      1	8678531882 ns/op
+BenchmarkDoCPUBoundWorkMoreWorkersV2/workers_200-16       	      1	9435884945 ns/op
+BenchmarkDoCPUBoundWorkMoreWorkersV2/workers_300-16       	      1	9359924434 ns/op
+BenchmarkDoCPUBoundWorkMoreWorkersV2/workers_400-16       	      1	9216466950 ns/op
+BenchmarkDoCPUBoundWorkMoreWorkersV2/workers_500-16       	      1	9349231181 ns/op
+BenchmarkDoCPUBoundWorkMoreWorkersV2/workers_600-16       	      1	9386038478 ns/op
+BenchmarkDoCPUBoundWorkMoreWorkersV2/workers_700-16       	      1	9416596433 ns/op
+BenchmarkDoCPUBoundWorkMoreWorkersV2/workers_800-16       	      1	9437515048 ns/op
+BenchmarkDoCPUBoundWorkMoreWorkersV2/workers_900-16       	      1	9452001915 ns/op
+BenchmarkDoCPUBoundWorkMoreWorkersV2/workers_1000-16      	      1	9506059406 ns/op
+BenchmarkDoCPUBoundWorkMoreWorkersV2/workers_1100-16      	      1	9527950770 ns/op
+BenchmarkDoCPUBoundWorkMoreWorkersV2/workers_1200-16      	      1	9913695772 ns/op
+BenchmarkDoCPUBoundWorkMoreWorkersV2/workers_1300-16      	      1	9841275928 ns/op
+BenchmarkDoCPUBoundWorkMoreWorkersV2/workers_1400-16      	      1	9405369416 ns/op
+BenchmarkDoCPUBoundWorkMoreWorkersV2/workers_1500-16      	      1	9501346262 ns/op
+BenchmarkDoCPUBoundWorkMoreWorkersV2/workers_1600-16      	      1	9522931472 ns/op
+BenchmarkDoCPUBoundWorkMoreWorkersV2/workers_1700-16      	      1	9432323924 ns/op
+BenchmarkDoCPUBoundWorkMoreWorkersV2/workers_1800-16      	      1	9463393120 ns/op
+BenchmarkDoCPUBoundWorkMoreWorkersV2/workers_1900-16      	      1	9491698882 ns/op
+BenchmarkDoCPUBoundWorkMoreWorkersV2/workers_2000-16      	      1	9589206450 ns/op
+BenchmarkDoCPUBoundWorkMoreWorkersV2/workers_2100-16      	      1	9540486914 ns/op
+BenchmarkDoCPUBoundWorkMoreWorkersV2/workers_2200-16      	      1	9684058382 ns/op
+BenchmarkDoCPUBoundWorkMoreWorkersV2/workers_2300-16      	      1	9647047389 ns/op
+BenchmarkDoCPUBoundWorkMoreWorkersV2/workers_2400-16      	      1	9684749904 ns/op
+BenchmarkDoCPUBoundWorkMoreWorkersV2/workers_2500-16      	      1	9667528958 ns/op
+BenchmarkDoCPUBoundWorkMoreWorkersV2/workers_2600-16      	      1	9700955356 ns/op
+BenchmarkDoCPUBoundWorkMoreWorkersV2/workers_2700-16      	      1	9674946385 ns/op
+BenchmarkDoCPUBoundWorkMoreWorkersV2/workers_2800-16      	      1	9677824622 ns/op
+BenchmarkDoCPUBoundWorkMoreWorkersV2/workers_2900-16      	      1	9727929035 ns/op
+BenchmarkDoCPUBoundWorkMoreWorkersV2/workers_3000-16      	      1	9751761651 ns/op
+BenchmarkDoCPUBoundWorkMoreWorkersV2/workers_3100-16      	      1	9706060459 ns/op
+BenchmarkDoCPUBoundWorkMoreWorkersV2/workers_3200-16      	      1	9624629559 ns/op
+BenchmarkDoCPUBoundWorkMoreWorkersV2/workers_3300-16      	      1	9659790855 ns/op
+BenchmarkDoCPUBoundWorkMoreWorkersV2/workers_3400-16      	      1	9721975154 ns/op
+BenchmarkDoCPUBoundWorkMoreWorkersV2/workers_3500-16      	      1	9769472564 ns/op
+BenchmarkDoCPUBoundWorkMoreWorkersV2/workers_3600-16      	      1	9752463363 ns/op
+BenchmarkDoCPUBoundWorkMoreWorkersV2/workers_3700-16      	      1	9689948409 ns/op
+BenchmarkDoCPUBoundWorkMoreWorkersV2/workers_3800-16      	      1	9774593523 ns/op
+BenchmarkDoCPUBoundWorkMoreWorkersV2/workers_3900-16      	      1	9573307892 ns/op
+BenchmarkDoCPUBoundWorkMoreWorkersV2/workers_4000-16      	      1	9756471357 ns/op
+^Csignal: interrupt
+FAIL	github.com/chrisjpalmer/techblog/playground/parallelism_in_go/parallel	420.985s
+make: *** [bench-cpubound-moreworkersv2] Error 1
+
+ ~/Doc/fu/chrisjpalmer.github.io/p/parallelism_in_go  main ?2  git pull                              INT ↵  11m 32s  00-dev-mtribes-sydney-aws ⎈ 
+remote: Enumerating objects: 11, done.
+remote: Counting objects: 100% (11/11), done.
+remote: Compressing objects: 100% (2/2), done.
+remote: Total 6 (delta 4), reused 6 (delta 4), pack-reused 0
+Unpacking objects: 100% (6/6), 459 bytes | 41.00 KiB/s, done.
+From https://github.com/chrisjpalmer/chrisjpalmer.github.io
+   53cbdbd..807eda7  main       -> origin/main
+Updating 53cbdbd..807eda7
+Fast-forward
+ playground/parallelism_in_go/parallel/parallel_test.go | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+ ~/Doc/fu/chrisjpalmer.github.io/p/parallelism_in_go  main ?2  make bench-cpuboundv2 && make bench-cpubound-moreworkersv2
+cd parallel && go test -run=^$ -bench ^BenchmarkDoCPUBoundWorkV2$ .
+goos: darwin
+goarch: amd64
+pkg: github.com/chrisjpalmer/techblog/playground/parallelism_in_go/parallel
+cpu: Intel(R) Core(TM) i9-9880H CPU @ 2.30GHz
+BenchmarkDoCPUBoundWorkV2/workers_1-16         	      1	34262113713 ns/op
+BenchmarkDoCPUBoundWorkV2/workers_2-16         	      1	19360277852 ns/op
+BenchmarkDoCPUBoundWorkV2/workers_3-16         	      1	14420017776 ns/op
+BenchmarkDoCPUBoundWorkV2/workers_4-16         	      1	12133835292 ns/op
+BenchmarkDoCPUBoundWorkV2/workers_5-16         	      1	10835801821 ns/op
+BenchmarkDoCPUBoundWorkV2/workers_6-16         	      1	10102157871 ns/op
+BenchmarkDoCPUBoundWorkV2/workers_7-16         	      1	9896434064 ns/op
+BenchmarkDoCPUBoundWorkV2/workers_8-16         	      1	9396758871 ns/op
+BenchmarkDoCPUBoundWorkV2/workers_9-16         	      1	9671601612 ns/op
+BenchmarkDoCPUBoundWorkV2/workers_10-16        	      1	9741110240 ns/op
+BenchmarkDoCPUBoundWorkV2/workers_11-16        	      1	9891941928 ns/op
+BenchmarkDoCPUBoundWorkV2/workers_12-16        	      1	9831129693 ns/op
+BenchmarkDoCPUBoundWorkV2/workers_13-16        	      1	9959792266 ns/op
+BenchmarkDoCPUBoundWorkV2/workers_14-16        	      1	9776300386 ns/op
+BenchmarkDoCPUBoundWorkV2/workers_15-16        	      1	9503200003 ns/op
+BenchmarkDoCPUBoundWorkV2/workers_16-16        	      1	9504240289 ns/op
+BenchmarkDoCPUBoundWorkV2/workers_17-16        	      1	9406963724 ns/op
+BenchmarkDoCPUBoundWorkV2/workers_18-16        	      1	9055570984 ns/op
+BenchmarkDoCPUBoundWorkV2/workers_19-16        	      1	9027237627 ns/op
+BenchmarkDoCPUBoundWorkV2/workers_20-16        	      1	9002849500 ns/op
+BenchmarkDoCPUBoundWorkV2/workers_21-16        	      1	9067564047 ns/op
+BenchmarkDoCPUBoundWorkV2/workers_22-16        	      1	9208106805 ns/op
+BenchmarkDoCPUBoundWorkV2/workers_23-16        	      1	9119733677 ns/op
+BenchmarkDoCPUBoundWorkV2/workers_24-16        	      1	9044436718 ns/op
+PASS
+ok  	github.com/chrisjpalmer/techblog/playground/parallelism_in_go/parallel	272.013s
+cd parallel && go test -run=^$ -bench ^BenchmarkDoCPUBoundWorkMoreWorkersV2$ .
+goos: darwin
+goarch: amd64
+pkg: github.com/chrisjpalmer/techblog/playground/parallelism_in_go/parallel
+cpu: Intel(R) Core(TM) i9-9880H CPU @ 2.30GHz
+BenchmarkDoCPUBoundWorkMoreWorkersV2/workers_1-16         	      1	34601256687 ns/op
+BenchmarkDoCPUBoundWorkMoreWorkersV2/workers_100-16       	      1	8736557978 ns/op
+BenchmarkDoCPUBoundWorkMoreWorkersV2/workers_200-16       	      1	9532238748 ns/op
+BenchmarkDoCPUBoundWorkMoreWorkersV2/workers_300-16       	      1	9427901639 ns/op
+BenchmarkDoCPUBoundWorkMoreWorkersV2/workers_400-16       	      1	9298926532 ns/op
+BenchmarkDoCPUBoundWorkMoreWorkersV2/workers_500-16       	      1	9503598829 ns/op
+BenchmarkDoCPUBoundWorkMoreWorkersV2/workers_600-16       	      1	9324876730 ns/op
+BenchmarkDoCPUBoundWorkMoreWorkersV2/workers_700-16       	      1	9362273279 ns/op
+BenchmarkDoCPUBoundWorkMoreWorkersV2/workers_800-16       	      1	9399147886 ns/op
+BenchmarkDoCPUBoundWorkMoreWorkersV2/workers_900-16       	      1	9433670459 ns/op
+BenchmarkDoCPUBoundWorkMoreWorkersV2/workers_1000-16      	      1	9406280971 ns/op
+PASS
+ok  	github.com/chrisjpalmer/techblog/playground/parallelism_in_go/parallel	128.289s
+ ~/Doc/fu/chrisjpalmer.github.io/p/parallelism_in_go  main ?2  make bench-cpuboundv2 && make bench-cpubound-moreworkersv2
+cd parallel && go test -run=^$ -bench ^BenchmarkDoCPUBoundWorkV2$ .
+goos: darwin
+goarch: amd64
+pkg: github.com/chrisjpalmer/techblog/playground/parallelism_in_go/parallel
+cpu: Intel(R) Core(TM) i9-9880H CPU @ 2.30GHz
+BenchmarkDoCPUBoundWorkV2/workers_1-16         	      1	34525563303 ns/op
+BenchmarkDoCPUBoundWorkV2/workers_2-16         	      1	19353335468 ns/op
+BenchmarkDoCPUBoundWorkV2/workers_3-16         	      1	14085516469 ns/op
+BenchmarkDoCPUBoundWorkV2/workers_4-16         	      1	12138349099 ns/op
+BenchmarkDoCPUBoundWorkV2/workers_5-16         	      1	10493678465 ns/op
+BenchmarkDoCPUBoundWorkV2/workers_6-16         	      1	10228770482 ns/op
+BenchmarkDoCPUBoundWorkV2/workers_7-16         	      1	9833933456 ns/op
+BenchmarkDoCPUBoundWorkV2/workers_8-16         	      1	9702903350 ns/op
+BenchmarkDoCPUBoundWorkV2/workers_9-16         	      1	9355332557 ns/op
+BenchmarkDoCPUBoundWorkV2/workers_10-16        	      1	10156921509 ns/op
+BenchmarkDoCPUBoundWorkV2/workers_11-16        	      1	10101585011 ns/op
+BenchmarkDoCPUBoundWorkV2/workers_12-16        	      1	10058265090 ns/op
+BenchmarkDoCPUBoundWorkV2/workers_13-16        	      1	9565190885 ns/op
+BenchmarkDoCPUBoundWorkV2/workers_14-16        	      1	9694993753 ns/op
+BenchmarkDoCPUBoundWorkV2/workers_15-16        	      1	9556938227 ns/op
+BenchmarkDoCPUBoundWorkV2/workers_16-16        	      1	9309414209 ns/op
+BenchmarkDoCPUBoundWorkV2/workers_17-16        	      1	9215055326 ns/op
+BenchmarkDoCPUBoundWorkV2/workers_18-16        	      1	9141866039 ns/op
+BenchmarkDoCPUBoundWorkV2/workers_19-16        	      1	9147758723 ns/op
+BenchmarkDoCPUBoundWorkV2/workers_20-16        	      1	9129026880 ns/op
+BenchmarkDoCPUBoundWorkV2/workers_21-16        	      1	9149399547 ns/op
+BenchmarkDoCPUBoundWorkV2/workers_22-16        	      1	9003362525 ns/op
+BenchmarkDoCPUBoundWorkV2/workers_23-16        	      1	9200237672 ns/op
+BenchmarkDoCPUBoundWorkV2/workers_24-16        	      1	9121482089 ns/op
+PASS
+ok  	github.com/chrisjpalmer/techblog/playground/parallelism_in_go/parallel	271.764s
+cd parallel && go test -run=^$ -bench ^BenchmarkDoCPUBoundWorkMoreWorkersV2$ .
+goos: darwin
+goarch: amd64
+pkg: github.com/chrisjpalmer/techblog/playground/parallelism_in_go/parallel
+cpu: Intel(R) Core(TM) i9-9880H CPU @ 2.30GHz
+BenchmarkDoCPUBoundWorkMoreWorkersV2/workers_1-16         	      1	34574160104 ns/op
+BenchmarkDoCPUBoundWorkMoreWorkersV2/workers_100-16       	      1	8655769251 ns/op
+BenchmarkDoCPUBoundWorkMoreWorkersV2/workers_200-16       	      1	9648624733 ns/op
+BenchmarkDoCPUBoundWorkMoreWorkersV2/workers_300-16       	      1	9181614743 ns/op
+BenchmarkDoCPUBoundWorkMoreWorkersV2/workers_400-16       	      1	9207846892 ns/op
+BenchmarkDoCPUBoundWorkMoreWorkersV2/workers_500-16       	      1	9232472232 ns/op
+BenchmarkDoCPUBoundWorkMoreWorkersV2/workers_600-16       	      1	9287494029 ns/op
+BenchmarkDoCPUBoundWorkMoreWorkersV2/workers_700-16       	      1	9297910319 ns/op
+BenchmarkDoCPUBoundWorkMoreWorkersV2/workers_800-16       	      1	9342365782 ns/op
+BenchmarkDoCPUBoundWorkMoreWorkersV2/workers_900-16       	      1	9355607873 ns/op
+BenchmarkDoCPUBoundWorkMoreWorkersV2/workers_1000-16      	      1	9388357111 ns/op
+PASS
+ok  	github.com/chrisjpalmer/techblog/playground/parallelism_in_go/parallel	127.802s
