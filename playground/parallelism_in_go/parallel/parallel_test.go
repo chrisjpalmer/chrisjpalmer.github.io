@@ -158,7 +158,7 @@ func BenchmarkDoCPUBoundWorkV2(b *testing.B) {
 
 func BenchmarkDoCPUBoundWorkMoreWorkersV2(b *testing.B) {
 	workUnits := 30000
-	maxWorkers := 6000
+	maxWorkers := 1000
 	bufferSize := 3000
 	work := make([]string, workUnits)
 	for i := 0; i < workUnits; i++ {
