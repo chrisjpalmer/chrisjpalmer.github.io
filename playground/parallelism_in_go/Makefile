@@ -13,6 +13,14 @@ bench-cpuboundv2:
 bench-cpubound-moreworkersv2:
 	cd parallel && go test -run=^$$ -bench ^BenchmarkDoCPUBoundWorkMoreWorkersV2$$ .
 
+benchv2:
+	cd parallel && go test -count=3 -run=^$$ -bench ^BenchmarkDoCPUBoundWorkV2$$ .
+	cd parallel && go test -count=3 -run=^$$ -bench ^BenchmarkDoCPUBoundWorkMoreWorkersV2$$ .
+	cd parallel && go test -count=3 -run=^$$ -bench ^BenchmarkDoCPUBoundWorkV2$$ .
+	cd parallel && go test -count=3 -run=^$$ -bench ^BenchmarkDoCPUBoundWorkMoreWorkersV2$$ .
+	cd parallel && go test -count=3 -run=^$$ -bench ^BenchmarkDoCPUBoundWorkV2$$ .
+	cd parallel && go test -count=3 -run=^$$ -bench ^BenchmarkDoCPUBoundWorkMoreWorkersV2$$ .
+	
 bench-iobound:
 	cd parallel && go test -run=^$$ -bench ^BenchmarkDoIOBoundWork$$ .
 
