@@ -58,10 +58,10 @@ bench:
 	cd parallel && go test -run=^$$ -bench .
 
 view-cpu:
-	go tool pprof -http=localhost:8080 parallel/$$CPU
+	go tool pprof -http=localhost:$$PORT parallel/$$CPU
 
 view-mem:
-	go tool pprof -http=localhost:8081 parallel/$$MEM
+	go tool pprof -http=localhost:$$PORT parallel/$$MEM
 
 view-trace:
-	go tool trace -http=localhost:8082 parallel/$$TRACE
+	go tool trace -http=localhost:$$PORT parallel/$$TRACE
