@@ -82,9 +82,9 @@ I should also note at this point, that I was paying close attention to Dave Chet
 
 The results surprised me a little. Yes execution time decreased as you increased goroutine workers. However I was expecting performance to decrease after workers surpassed the number of logical CPUs on each machine. In fact the opposite happened: as workers surpassed logical CPUs performance improved! What's more is that the result for the Mac was showing that the best result was when workers was 8 which was half the number of lofical processors! This was a very weird result and I was puzzled by it.
 
-## Experiment 2
+## Attempt 2
 
-I suspected that the test wasn't intense enough so it wasn't pushing the CPU to its maximum capacity. Perhaps when workers were increased beyond logical processors, although theoretically there shouldn't be more throughput due to saturating CPU resources, there was a chance that the CPU was actually turboing at this time, leading to better performance. Modern CPUs are lazy and typically run at a slower clock speed when there isn't much work to do. This is to save power and increase the life of the CPU. This means that unless you are really pushing the CPU to its limits, you may not get the most out of it. With this in mind, I decided to run the experiment again but this time make the CPU do more work!
+I wanted to be sure that I wasn't seeing these results due to the "lazy CPU" effect mentioned earlier. I theorized that perhaps the test wasn't really pushing the CPU to its limits and only when more work was created (by increasing the goroutines), the CPU actually decided to work harder. To ensure this wasn't the case, I increased the work units and ran the test again, hoping to see my original hypothesis which was that performance should not get better once the workers surpassed the number of logical CPUs.
 
 ```diff
 func BenchmarkDoCPUBoundWorkV2(b *testing.B) {
@@ -95,15 +95,19 @@ func BenchmarkDoCPUBoundWorkV2(b *testing.B) {
 }
 ```
 
-Running the tests again these are the results I saw. I only tested these on my Mac and WSL:
+I ran the tests again but this time just on my Mac and WSL environments:
 
 ![](/images/cpubound3.png)
 ![](/images/cpubound4.png)
 
-Like before, I observed a decrease in execution time as the workers were increased. Once again this was to be expected. The mac result seemed to make more sense now too because unlike the previous results, were execution time increased after 8 workers, this time around it followed the WSL results and trended downwards.
+The results were better. This time I saw that the execution time for the Mac tests didn't increase after 8 workers. However I was still puzzled why performance was getting better after surpassing the number of logical CPUs. Specifically the workers = 24 result was 240ms faster than than the workers = 12 result (1.12% faster).
 
-The problem was however I was still seeing results where workers > logical processors out performed workers = logical processors.
-It was at this point I turned to cpu/memory profiles and execution traces to find the answers.
+At this point I thought it might be a good idea to look at CPU and Memory profiles as well as execution traces.
+
+```
+go test -cpuprofile=wsl-cpu-12.out -benchmem -memprofile=wsl-mem-12.out -run=^$$ -bench ^BenchmarkDoCPUBoundWorkV2/workers_12$$ .
+go test -cpuprofile=wsl-cpu-24.out -benchmem -memprofile=wsl-mem-24.out -run=^$$ -bench ^BenchmarkDoCPUBoundWorkV2/workers_24$$ .
+```
 
 After comparing several CPU traces I didn't find anything particularly interesting.
 However the memory trace was telling me something. There were huge byte array allocations in my code. Over the course of the test the application allocated over 16Gb of memory. Obviously 16Gb wasn't live the whole time (coz it would have been cleaned up by the GC)... but it led me to think my results could be being impacted by the GC.
