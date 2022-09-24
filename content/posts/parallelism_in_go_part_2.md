@@ -279,5 +279,5 @@ This suggested to me that perhaps its impossible to see the 500ns penalty betwee
 
 ## Conclusion
 
-Although I coulodn't find the magic number workers = logical processors, I can see with a reasonable degree of confidence that workers = logical processors is the point at which you get the most reasonable optimization with CPU bound work.s
+Although I couldn't find the magic number workers = logical processors, I can see with a reasonable degree of confidence that workers = logical processors is the point at which you get the most reasonable optimization with CPU bound work.
 

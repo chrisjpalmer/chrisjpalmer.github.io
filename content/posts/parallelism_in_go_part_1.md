@@ -10,7 +10,7 @@ Its a great language and extremely practical for a plethora of backend tasks. Wi
 One of the things I have always been fascinated by with regards to computers was parallelism. Naturally when I started learning go,
 I made a point to check out all its concurrency features. And now I am writing a blog post on some of them! What's more, is that recently go 1.19 came out and it has support for generics! So what better way to showcase all this learning with some generic fun at the same time.
 
-Below is an implementation of parallel doer that takes some array of work, fans it out to a set of workers and then collates the results:
+Below is an implementation of parallel _"Doer"_ that takes some array of work, fans it out to a set of workers and then collates the results:
 
 ```go
 
@@ -63,7 +63,7 @@ I have always been fascinated my Go's concurrency model. A friend once told me "
 IO bound operations are system calls, reads/writes to disk, or an http request... anything that your application isn't executing, but is *waiting* for it to complete.
 For example, if your application fires an http request to `https://google.com`, it has to wait for the response from google. While its doing this, your application is idle and its not executing anything. Applications run on threads and when the thread becomes idle, the OS puts it to sleep and runs a different one. This helps to utilize the processor fully. The problem is that the threading model is heavy and switching between threads costs a lot of CPU cycles. The advantage of goroutines is that they are significantly lighter and context switching only comes with a small penalty. When a go application boots, it firstly spins up a small pool of threads (called logical processors) and constantly switches go routines on and off these threads, to keep the threads as busy as possible. In a web server where you deal predominantly with IO bound work, this is great. Thousands of goroutines can be spawned with a minimal performance penalty.
 
-To show how smart I am, I wanted to demonstrate this for the blog post: I set up a test using the above parallel `Do` function.
+To demonstrate this effect, I wanted to set up a benchmark to test IO bound work. I set up a test using the above parallel `Do` function.
 The test creates 3000 units of work, runs `Do` and records how long it took. The test is run repeatedly and each time the workers are increased by 100.
 To negate the effects of random interference on the machines I was testing, I ran each test 3 times and took the average of the results. For more good tips on how to take proper bench marks read [Dave Cheney's blog post](https://dave.cheney.net/tag/benchmarking)... its really good!
 
@@ -110,7 +110,7 @@ As the workers increased beyond 3000, the time increased slightly.
 ![](/images/io_bound_work.png)
 
 I wasn't sure why the best result wasn't 1ms, but I guessed that some extra time was being added somewhere.
-The fact that the time increased after 3000 workers made make sense to me though. Since there are only 3000 units of work in the test, there were no benefits after spinning up 3000 workers. The extra time was likely attributed to the cost of creating go routines and managing them on the scheduler.
+The fact that the time increased after 3000 workers made sense to me though. Since there are only 3000 units of work in the test, there were no benefits after spinning up 3000 workers. The extra time was likely attributed to the cost of creating go routines and managing them on the scheduler.
 
 Overall however, the results were what I wanted to see: You can spin up a large amount of goroutines with a minimal penalty to perform IO bound work.
 
