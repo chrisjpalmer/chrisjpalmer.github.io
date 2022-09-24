@@ -5,29 +5,28 @@ draft: false
 ---
 
 Hi there! This is a part twoer to my first post on Parallelism in Go.
-In my first post I explored parallelism with IO Bound Work - a particular type of workload which Go is very well designed to handle.
+In my last post I explored how goroutine workers can be used to complete IO bound work. The optimum number of goroutines to use is always aligned with the number of units of IO bound work. In this post I set out to explore another time of work which goroutine workers can be used to complete: CPU bound work.
 
-In this post I wanted to explore go's parallelism characteristics around CPU Bound work. Now disclaimer: I went into this experiment fishing for a particular result, and I kind of only started to see it after a lot of testing... I mean a lot. And I just want to be honest about this because this is how it is in the software world - a lot of trial and error. Yes the answers exist out there, but there is often a journey which must be undertaken to discover them first.
-
-So let me take you through that journey...
 
 ## Hypothesis
 
-I have been doing Go for a while and read numerous articles about parallelism over the years. Some of my favourites are the Arden Labs ones. Please check them out :)
+CPU bound work is work which uses the CPU mainly. Examples of this are adding two numbers, iterating in a loop or hashing a value. No network call, system call or disk read is being made and the CPU is being fully utilized. Its also important to note that CPU bound work does not include synchronization with other goroutines (by way of channels or mutexes).
 
-The general consensus behind CPU bound work is this: You can't get more throughput than the number of logical processors.
+Unlike IO bound work which waits on something else to complete, CPU bound work consumes CPU cycles. In the IO bound examples we were able to run 3000 goroutines to improve the performance of a workload with 3000 units of IO bound work. The same is not true for CPU bound work. In CPU bound work, we are limited by the number of cores on the machine. If our machine has 4 cores, it can do 4 jobs at once. If our CPU has hyperthreading enabled, then those cores can be kept twice as busy which means we have 8 virtual cores which means it can do 8 jobs at once. These virtual cores are called logical CPUs for simplicity.
 
-Lets break that down. What is a logical processor?
+If we think about a normal application running on the operating system, the "jobs" we are referring to here are threads. Threads are "execution contexts" that are run in parallel by the CPU. However how does this work in go applications? Go maintains a pool of threads and schedules go routines on top of them. How many threads? It will spin up the same number of goroutines as the number of logical CPUs on your system. This is because spinning up more threads won't achieve any greater parallelism, since the CPU is limited by the number of logical CPUs it has. In fact, adding more threads would actually incur an additional penalty due to context switching. In a go application the threads in the thread pool are referred to as logical processors, and we say that goroutines are "scheduled on and off" these logical processors.
 
-A logical processor is essentially an execution context where your go programming can get some work done, and in real world terms this translates to a thread. The reason Go chooses to call them "logical processors" is because Go only spins up a small pool of them. Specifically it spins up as many as there are cores on your computer. And if your computer has hyperthreading enabled, it spins up twice as many logical processors. This means on my 6 core Windows Machine, Go always spins up 12 logical processors. The thought bubble behind this is that, spinning up any more than this will yield no more improvement in throughput due to parallelism. Go is recognising the physical limitations of the machine its running on, so its not going to bother pushing beyond that. In fact, pushing beyond that would theoretically degrade performance because you would incur additional overheads from context switching threads as the CPU tries to give all threads equal time.
+When thinking about go applications, goroutines are the concurrency primitive and we don't think about threads. But do the number of goroutines used for parallelising CPU bound work matter? Unlike threads, goroutines do not incur a large penalty when context switched off a logical processor, thanks to their light design. However it should still hold true, that spinning up more goroutines than logical processors, won't achieve more parallelism. We are still limited by the number of logical CPUs available.
 
-If the physical resources are the limitations for logical processors, then it makes sense that the logical processors are the limiting factor for how many goroutines you can spin up to perform CPU bound work. Now the key here is "Cpu Bound" because IO Bound work doesn't use the CPU. The goroutine waiting for the IO bound operation (network, disk, syscall) is put to sleep and another goroutine is put in its place on that logical processor. Conversely with CPU bound work, we are referring to work loads which primarily use the CPU. Examples of such workloads are iterating a loop, adding two numbers together or hashing a string. In the case of CPU bound work, given that the CPU is the limiting factor it makes sense that you shouldn't be able to run more goroutines than logical processors, and experience an increase in throughput.
+With this in mind, I set out to demonstrate this effect with a few benchmarks. I created some cpu bound work, parallelized using the `Do` function of the last post, and increased the goroutine workers each time to see how performance was affected. I hypothesized that as you increase workers to the number of logical CPUs, that performance would improve. I also hypothesized that after increasing workers beyond that number, performance would stay the same or eventually get worse. 
 
-I thought this would be very easy to prove, so I quickly drafted up my next bench mark experiment to show it in action. What I found is that, this wasn't so easy to prove after all and the story is a little more complicated... thats okay I like complicated :)
+This seemed pretty straightforward to me, but after benchmarking I found some pretty weird results...
 
-## Experiment 1
+## Attempt 1
 
-Using the same parallel `Do` function in the previous blog post (which you can find in the [examples]()), I prepared my next victim:
+For my first attempt I set up some cpu bound work which hashed an input in a tight loop 10000 times. I chose hashing because it is a CPU intense operation. Since murmur3 is quite performant, I looped it 10000 times to generate some steam. 
+
+Similar to the benchmarking code in the previous post, I first generate some workload, and then call the `.Do` function increasing the number of workers each time. The `Do` function is surrounded by another for loop which takes into account `b.N`. Its important when writing benchmarks to run the target code `b.N` times so that the go benchmarking runtime can control the number of iterations. It does this to take multiple samples and then average out the results.
 
 ```go
 func BenchmarkDoCPUBoundWork(b *testing.B) {
@@ -68,31 +67,20 @@ func cpuBoundWorkFunc(input string) (uint64, error) {
 }
 ```
 
-I ran the benchmarks on all three environments I tested in the last post:
-- WSL running on my windows - 6 cores
+For this attempt I was going to run the benchmarks in 3 environments and compare:
+- WSL (Windows Subsystem Linux) - 6 cores
 - Windows - 6 cores
 - Mac - 8 cores
 
-Here were the results I got:
+My expectation was that performance would increase as you increased workers up to the number of logical CPUs (which on the Mac was 16 and on the Windows and WSL was 12). I was then hoping to see performance decrease a little after that number. The reason why I believed that performance would decrease after workers > logical CPUs is because I am aware that even though goroutines are lightweight, they still incur a penalty for being scheduled on and off logical processors. I was expecting to see the execution time of the benchmark jump up as a result of this penalty.
+
+I should also note at this point, that I was paying close attention to Dave Chetney's guide on benchmarks. He always suggests to run multiple instances of your benchmarks and then average them out. He also advises that you run some heavy benchmark prior to the real one because CPUs are sometimes lazy and don't perform until you give them a really hefty workload. I did both of these things when gathering my results. Every benchmark run 3 times before moving onto the next number of workers. Additionally I ran the entire benchmark command 3 times. In the end I had 9 results for each worker. Using some spreadsheeting, I took the averages and graphed the results.
 
 ![](/images/cpubound1.png)
 
-The first observation I made from these results were that, predictably, as you increase the workers, the overall time decreased.
-This makes sense since you are utilizing the system resources in parallel as you increase workers, therefore gettinga time advantage.
-
-What I was hoping to see as well was a clear and obvious plateau in performance once you increased workers to the same number of logical processors that each machine had.
-For Mac this was 16 and for Windows and WSL this was 12:
-
 ![](/images/cpubound2.png)
 
-This is where the results were not so kind to me. There was really no relationship between the count of logical processors and workers.
-For Windows, yes it performed well at 12 (better than previous results), but saw even better results as you increased the workers beyond 12!
-For WSL, it performed worse at 12 than it did for 7 and 24.
-Similarly for Mac, it performed best at 8 and worse after 13!
-
-I could not understand why I got these results... why isn't the magic number = logical processors!
-
-This led me to another experiment
+The results surprised me a little. Yes execution time decreased as you increased goroutine workers. However I was expecting performance to decrease after workers surpassed the number of logical CPUs on each machine. In fact the opposite happened: as workers surpassed logical CPUs performance improved! What's more is that the result for the Mac was showing that the best result was when workers was 8 which was half the number of lofical processors! This was a very weird result and I was puzzled by it.
 
 ## Experiment 2
 
