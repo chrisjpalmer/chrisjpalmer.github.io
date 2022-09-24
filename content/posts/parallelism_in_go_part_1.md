@@ -102,22 +102,17 @@ Here were the results:
 
 Initially the `Do` takes roughly 4 seconds to complete.
 
-![](./io_bound_work_initially.png)
+![](../images/io_bound_work_initially.png)
 
 As the workers increased to 3000, the time approached 3.5ms.
 As the workers increased beyond 3000, the time increased slightly.
 
-![](./io_bound_work.png)
+![](../images/io_bound_work.png)
 
 I wasn't sure why the best result wasn't 1ms, but I guessed that some extra time was being added somewhere.
 The fact that the time increased after 3000 workers made make sense to me though. Since there are only 3000 units of work in the test, there were no benefits after spinning up 3000 workers. The extra time was likely attributed to the cost of creating go routines and managing them on the scheduler.
 
 Overall however, the results were what I wanted to see: You can spin up a large amount of goroutines with a minimal penalty to perform IO bound work.
-Good job smart me!
-
-But I didn't want to stop there...
-
-## CPU Bound
 
 
 

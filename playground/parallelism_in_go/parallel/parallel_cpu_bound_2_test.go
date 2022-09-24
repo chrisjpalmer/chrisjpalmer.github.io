@@ -23,40 +23,6 @@ func BenchmarkDoCPUBoundWorkV2(b *testing.B) {
 	}
 }
 
-func BenchmarkDoCPUBoundWorkV2Part1(b *testing.B) {
-	workUnits := 30000
-	maxWorkers := 12
-	bufferSize := 3000
-	work := make([]string, workUnits)
-	for i := 0; i < workUnits; i++ {
-		work[i] = "work" + strconv.Itoa(i)
-	}
-	for ws := 1; ws <= maxWorkers; ws++ {
-		b.Run(fmt.Sprintf("workers %d", ws), func(b *testing.B) {
-			for i := 0; i < b.N; i++ {
-				Do(work, cpuBoundWorkFunc, ws, bufferSize)
-			}
-		})
-	}
-}
-
-func BenchmarkDoCPUBoundWorkV2Part2(b *testing.B) {
-	workUnits := 30000
-	maxWorkers := 24
-	bufferSize := 3000
-	work := make([]string, workUnits)
-	for i := 0; i < workUnits; i++ {
-		work[i] = "work" + strconv.Itoa(i)
-	}
-	for ws := 13; ws <= maxWorkers; ws++ {
-		b.Run(fmt.Sprintf("workers %d", ws), func(b *testing.B) {
-			for i := 0; i < b.N; i++ {
-				Do(work, cpuBoundWorkFunc, ws, bufferSize)
-			}
-		})
-	}
-}
-
 func BenchmarkDoCPUBoundWorkMoreWorkersV2(b *testing.B) {
 	workUnits := 30000
 	maxWorkers := 1000
