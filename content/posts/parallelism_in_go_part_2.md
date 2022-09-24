@@ -265,7 +265,7 @@ This result got me pretty excited. So I ran with even more workers and performed
 
 ![](/images/cpubound13.png)
 
-Okay finally I could see what I was looking for! Taking the trendline each time, I found that there was a 0.0005ms (500μs) scheduler penalty per goroutine.
+Okay finally I could see what I was looking for! Taking the trendline each time, I found that there was a 0.0005ms (500ns) scheduler penalty per goroutine.
 As for the magic number 12, I could not find it. In repeats of the test it just didn't show up:
 
 ![](/images/cpubound14.png)
@@ -275,7 +275,7 @@ As for the magic number 12, I could not find it. In repeats of the test it just 
 However what I did notice is that there seems to be random noise in all the results. For example, comparing 3 individual back to back runs of the test, the results don't exactly align with each other:
 ![](/images/cpubound17.png)
 
-This suggested to me that perhaps its impossible to see the 500μs penalty between workers = 12 and workers = 13. Perhaps that just wasn't going to possible given that my personal computer always has some degree of noise.
+This suggested to me that perhaps its impossible to see the 500ns penalty between workers = 12 and workers = 13. Perhaps that just wasn't going to possible given that my personal computer always has some degree of noise.
 
 ## Conclusion
 
