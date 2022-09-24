@@ -1,6 +1,12 @@
 test:
 	go test ./...
 
+escape-analysis-murmur3:
+	 go build -gcflags=-m=3 github.com/spaolacci/murmur3
+
+escape-analysis-test:
+	go test -gcflags=-m=3 -c ./playground/parallelism_in_go/parallel
+
 bench-cpubound:
 	cd parallel && go test -run=^$$ -bench ^BenchmarkDoCPUBoundWork$$ .
 
@@ -17,6 +23,20 @@ bench-cpuboundv2-count3:
 	cd parallel && go test -count=3 -run=^$$ -bench ^BenchmarkDoCPUBoundWorkV2Part2$$ .	
 	cd parallel && go test -count=3 -run=^$$ -bench ^BenchmarkDoCPUBoundWorkV2Part1$$ .	
 	cd parallel && go test -count=3 -run=^$$ -bench ^BenchmarkDoCPUBoundWorkV2Part2$$ .	
+
+bench-cpuboundv3-count3:
+	cd parallel && go test -count=3 -run=^$$ -bench ^BenchmarkDoCPUBoundWorkV3$$ .
+
+bench-cpuboundv3-backwards-count3:
+	cd parallel && go test -count=3 -run=^$$ -bench ^BenchmarkDoCPUBoundWorkV3Backwards$$ .
+
+bench-cpuboundv4-count3:
+	cd parallel && go test -timeout=2h -count=3 -run=^$$ -bench ^BenchmarkDoCPUBoundWorkV4$$ .
+	cd parallel && go test -timeout=2h -count=3 -run=^$$ -bench ^BenchmarkDoCPUBoundWorkV4$$ .
+	cd parallel && go test -timeout=2h -count=3 -run=^$$ -bench ^BenchmarkDoCPUBoundWorkV4$$ .
+
+bench-cpuboundv4-backwards-count3:
+	cd parallel && go test -count=3 -run=^$$ -bench ^BenchmarkDoCPUBoundWorkV4Backwards$$ .
 
 bench-cpuboundv2-cpumem-wsl:
 	# for wsl
@@ -39,6 +59,18 @@ bench-cpuboundv2-trace-mac:
 	cd parallel && go test -trace=mac-trace-12.out -run=^$$ -bench ^BenchmarkDoCPUBoundWorkV2Part1/workers_12$$ .
 	cd parallel && go test -trace=mac-trace-16.out -run=^$$ -bench ^BenchmarkDoCPUBoundWorkV2Part2/workers_16$$ .
 	cd parallel && go test -trace=mac-trace-24.out -run=^$$ -bench ^BenchmarkDoCPUBoundWorkV2Part2/workers_24$$ .
+
+bench-cpuboundv3-cpumemtrace-wsl:
+	# warm up
+	cd parallel && go test -count=5 -run=^$$ -bench ^BenchmarkDoCPUBoundWorkV3$$/workers_24$$ .
+
+	# run test
+	cd parallel && go test -benchtime=1x -cpuprofile=v3-wsl-cpu-24.out -run=^$$ -bench ^BenchmarkDoCPUBoundWorkV3Intense/workers_24$$ .
+	cd parallel && go test -benchtime=1x -cpuprofile=v3-wsl-cpu-12.out -run=^$$ -bench ^BenchmarkDoCPUBoundWorkV3Intense/workers_12$$ .
+	cd parallel && go test -benchtime=1x -benchmem -memprofile=v3-wsl-mem-24.out -run=^$$ -bench ^BenchmarkDoCPUBoundWorkV3Intense/workers_24$$ .
+	cd parallel && go test -benchtime=1x -benchmem -memprofile=v3-wsl-mem-12.out -run=^$$ -bench ^BenchmarkDoCPUBoundWorkV3Intense/workers_12$$ .
+	cd parallel && go test -benchtime=1x -trace=v3-wsl-trace-24.out -run=^$$ -bench ^BenchmarkDoCPUBoundWorkV3Intense/workers_24$$ .
+	cd parallel && go test -benchtime=1x -trace=v3-wsl-trace-12.out -run=^$$ -bench ^BenchmarkDoCPUBoundWorkV3Intense/workers_12$$ .
 
 bench-cpubound-moreworkersv2:
 	cd parallel && go test -run=^$$ -bench ^BenchmarkDoCPUBoundWorkMoreWorkersV2$$ .
