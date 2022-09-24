@@ -75,7 +75,7 @@ I ran the benchmarks on all three environments I tested in the last post:
 
 Here were the results I got:
 
-![](../images/cpubound1.png)
+![](/images/cpubound1.png)
 
 The first observation I made from these results were that, predictably, as you increase the workers, the overall time decreased.
 This makes sense since you are utilizing the system resources in parallel as you increase workers, therefore gettinga time advantage.
@@ -83,7 +83,7 @@ This makes sense since you are utilizing the system resources in parallel as you
 What I was hoping to see as well was a clear and obvious plateau in performance once you increased workers to the same number of logical processors that each machine had.
 For Mac this was 16 and for Windows and WSL this was 12:
 
-![](../images/cpubound2.png)
+![](/images/cpubound2.png)
 
 This is where the results were not so kind to me. There was really no relationship between the count of logical processors and workers.
 For Windows, yes it performed well at 12 (better than previous results), but saw even better results as you increased the workers beyond 12!
@@ -109,8 +109,8 @@ func BenchmarkDoCPUBoundWorkV2(b *testing.B) {
 
 Running the tests again these are the results I saw. I only tested these on my Mac and WSL:
 
-![](../images/cpubound3.png)
-![](../images/cpubound4.png)
+![](/images/cpubound3.png)
+![](/images/cpubound4.png)
 
 Like before, I observed a decrease in execution time as the workers were increased. Once again this was to be expected. The mac result seemed to make more sense now too because unlike the previous results, were execution time increased after 8 workers, this time around it followed the WSL results and trended downwards.
 
@@ -202,9 +202,9 @@ My new work function would obviously not produce the same output, but it was mor
 
 Here were my results:
 
-![](../images/cpubound5.png)
+![](/images/cpubound5.png)
 
-![](../images/cpubound6.png)
+![](/images/cpubound6.png)
 
 I noticed right away this strange peak at workers = 2 than hadn't cropped up before. I found this weird since it didn't make sense that an increase in parallelism was also increasing execution time! Oh well, it certainly revealed that this work function had very different characteristics to the last one!
 
@@ -256,32 +256,32 @@ This function does nothing more than operate in a tight loop. The only reason I 
 
 I ran the test and these were my results:
 
-![](../images/cpubound8.png)
-![](../images/cpubound9.png)
-![](../images/cpubound10.png)
+![](/images/cpubound8.png)
+![](/images/cpubound9.png)
+![](/images/cpubound10.png)
 
 The test results showed something different this time. Instead of the execution time trending down as workers increased beyond 12, it was trending up. Still the optimium number of worker go routines was not 12, however at least I was starting to see that additional go routines was incurring a schedule penalty as predicted.
 
 In fact the results were even more apparent when I ran it all the way up to 100 workers:
-![](../images/cpubound11.png)
+![](/images/cpubound11.png)
 
 This result got me pretty excited. So I ran with even more workers and performed 3 test runs to make sure I wasn't running into any noise from the machine:
 
-![](../images/cpubound12.png)
+![](/images/cpubound12.png)
 
 .. and more workers:
 
-![](../images/cpubound13.png)
+![](/images/cpubound13.png)
 
 Okay finally I could see what I was looking for! Taking the trendline each time, I found that there was a 0.0005ms (500μs) scheduler penalty per goroutine.
 As for the magic number 12, I could not find it. In repeats of the test it just didn't show up:
 
-![](../images/cpubound14.png)
-![](../images/cpubound15.png)
-![](../images/cpubound16.png)
+![](/images/cpubound14.png)
+![](/images/cpubound15.png)
+![](/images/cpubound16.png)
 
 However what I did notice is that there seems to be random noise in all the results. For example, comparing 3 individual back to back runs of the test, the results don't exactly align with each other:
-![](../images/cpubound17.png)
+![](/images/cpubound17.png)
 
 This suggested to me that perhaps its impossible to see the 500μs penalty between workers = 12 and workers = 13. Perhaps that just wasn't going to possible given that my personal computer always has some degree of noise.
 
