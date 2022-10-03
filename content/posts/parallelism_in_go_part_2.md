@@ -259,7 +259,8 @@ And then all the way to 1000 workers:
 
 Finally I could see what I was looking for! Plotting the trendline revealed a 0.0005ms (500ns) increase in execution per goroutine added. Whether this was from scheduling costs or just the cost to boot the goroutine, I don't know. What we can deduce is that this is an extremely small and therefore insignificant penalty for spinning up a goroutine. I was admitedly expecting something much worse but in the end only found a meer 500ns penalty!
 
-Lessons learnt:
+## Lessons Learnt
+
 1. Execution time improves as your goroutine workers approach the available number of logical CPUs. This make sense because your workload can be parallelized onto all the available cores. 
 2. There is a penalty for creating more go routines than logical CPUs BUT the penalty is insignificant and you shouldn't worry about it. 500ns is nothing.
 3. Function complexity contributes to noise in an application which makes it worthless to try and isolate factors like the number of goroutines.
