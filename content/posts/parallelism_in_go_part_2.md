@@ -8,7 +8,7 @@ Hi there! This is a part twoer to my first post on Parallelism in Go.
 In my last post I explored how goroutine workers can be used to complete IO bound work. The optimum number of goroutines to use is always aligned with the number of units of IO bound work. In this post I set out to explore another type of work which goroutine workers can be used to complete: CPU bound work.
 
 
-## Hypothesis
+## Theory
 
 CPU bound work is work which uses the CPU mainly. Examples of this are adding two numbers, iterating in a loop or hashing a value. No network call, system call or disk read is being made and the CPU is being fully utilized. Its also important to note that CPU bound work does not include synchronization with other goroutines (by way of channels or mutexes).
 
@@ -17,6 +17,8 @@ Unlike IO bound work which waits on something else to complete, CPU bound work c
 If we think about a normal application running on the operating system, the "jobs" we are referring to here are threads. Threads are "execution contexts" that are run in parallel by the CPU. However how does this work in go applications? Go maintains a pool of threads and schedules go routines on top of them. How many threads? It will spin up the same number of goroutines as the number of logical CPUs on your system. This is because spinning up more threads won't achieve any greater parallelism, since the CPU is limited by the number of logical CPUs it has. In fact, adding more threads would actually incur an additional penalty due to context switching. In a go application the threads in the thread pool are referred to as logical processors, and we say that goroutines are "scheduled on and off" these logical processors.
 
 When thinking about go applications, goroutines are the concurrency primitive and we don't think about threads. But do the number of goroutines used for parallelising CPU bound work matter? Unlike threads, goroutines do not incur a large penalty when context switched off a logical processor, thanks to their light design. However it should still hold true, that spinning up more goroutines than logical processors, won't achieve more parallelism. We are still limited by the number of logical CPUs available.
+
+## Hypothesis
 
 With this in mind, I set out to demonstrate this effect with a few benchmarks. I created some cpu bound work, parallelized it using the `Do` function of the last post, and increased the goroutine workers each time to see how performance was affected. I hypothesized that:
 1. as workers increased to the number of logical CPUs, performance should improve.
