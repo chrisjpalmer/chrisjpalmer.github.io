@@ -83,6 +83,8 @@ My expectation was that performance would increase as you increased workers up t
 
 I should also note at this point, that I was paying close attention to [Dave Cheney's guide on benchmarks](https://dave.cheney.net/tag/benchmarking). He always suggests to run multiple instances of your benchmarks and then average them out. He also advises that you run some heavy benchmark prior to the real one because CPUs are sometimes lazy and don't perform until you give them a really hefty workload. I did both of these things when gathering my results. Every benchmark run was 3 times before moving onto the next number of workers. Additionally I ran the entire benchmark command 3 times. In the end I had 9 results for each number of workers that I wanted to test.
 
+### Results
+
 ![](/images/cpubound1.png)
 
 This graph showed what I was expecting to see. On the y-axis is execution time and on the x-axis is the number of goroutine workers used by the `Do` function to complete the work. In each test the amount of work completed was the same. As goroutine workers increased to the number of logical CPUs on each environment (windows & wsl = 12, mac = 16), execution time decreased.
@@ -104,12 +106,16 @@ func BenchmarkDoCPUBoundWorkV2(b *testing.B) {
 }
 ```
 
+### Results
+
 I ran the tests again but this time just on my Mac and WSL environments:
 
 ![](/images/cpubound3.png)
 ![](/images/cpubound4.png)
 
 The results were better. This time I saw that the execution time for the Mac tests didn't increase after 8 workers. However I was still puzzled why performance was getting better after surpassing the number of logical CPUs. Specifically the workers = 24 result was 240ms faster than than the workers = 12 result (1.12% speed up).
+
+### CPU & Memory Profiles
 
 At this point I thought it might be a good idea to look at CPU and Memory profiles.
 
@@ -126,6 +132,8 @@ CPU traces revealed that both processes were almost identical. Some extra time w
 I did end up on a lovely aside studying the [Go GC](https://tip.golang.org/doc/gc-guide) though. It didn't help me pinpoint the exact cause but it left we with a sense that "the GC is a complex beast" and that I needed to remove it as much as possible if I really wanted to see the result I was after.
 
 ## Attempt 3
+
+## Escape analysis
 
 For my third attempt I sought to avoid all heap allocations in the work function.
 
@@ -179,6 +187,8 @@ go build -gcflags=-m=3 github.com/spaolacci/murmur3
 
 Why? At a certain point in the murmur3 hash code, a slice of the byte slice was being taken `barr[:n-1]`. Unfortunately in this situation, the go compiler cannot predict how the memory is going to be used so to be on the safe side, it allocates the memory to the heap :(. Consequently my new work function was still allocating an 8 byte array to the heap for every unit of work.
 
+### Getting rid of heap allocations
+
 I really wanted to be rid of allocations so I came up with a solution by creating a variation of my original `Do` function. I created `DoWithState` which had an extra parameter for a function that created shared state for each goroutine worker. It was to be invoked when the goroutine worker was first spawned. I used this to create my 8 byte array once per goroutine worker and therefore avoid a heap allocation for every piece of work processed.
 
 ```go
@@ -215,7 +225,9 @@ func cpuBoundWorkFuncV3(barr []byte, input uint64) (uint64, error) {
 }
 ```
 
-With this new work function, I reran my test and here were my results:
+### Results
+
+With this new work function, I reran my test and here were my results *(this time just on my WSL environment because I was getting lazy)*:
 
 ![](/images/cpubound5.png)
 
@@ -223,7 +235,7 @@ With this new work function, I reran my test and here were my results:
 
 There was a strange increase in execution at workers = 2 which seemed odd. However apart from this my test results resembled the previous ones in many ways. Just like the previous results, execution trended down while workers was lower than logical CPUs. As workers passed the number of logical CPUs, execution time continued to trend downwards. I was fairly puzzled by the result so I studied execution and memory profiles again. Just like last time, nothing stood out except that more time was spent in runtime functions when workers was lower. It did occur to me though, that although my test might be free from heap allocations, murmur3 was quite a complex function itself and could be introducing noise too. Perhaps murmur3 was introducing complex mechanics that were all interfering with each other at the same time. This led me to one final test where I sought to eliminate all noise!
 
-### Attempt 4
+## Attempt 4
 
 For my final attempt I decided to eliminate murmur3 completely. This way, there would be no unexpected side effects created from the complexities within the hash function. I created a simple work function whose job was to count to 1 million!
 
@@ -239,6 +251,8 @@ func cpuBoundWorkFuncV4(input uint64) (uint64, error) {
 ```
 
 Why the `x = i % 2`? I wanted to create a little more work than just iterating in a loop but I couldn't simply divide two constant numbers together. The go compiler is notoriously good at optimising functions like this and sometimes will even calculate the result for you. To allude the go compiler, I made the result of `x` dependent on `i` so it was hard to optimize!
+
+### Results
 
 I ran the test and these were my results:
 
