@@ -1,4 +1,4 @@
 baseURL = "https://chrisjpalmer.github.io"
 languageCode = "en-us"
-title = "Tech Blog"
+title = "Chris Palmer and Go"
 theme = "ananke"
