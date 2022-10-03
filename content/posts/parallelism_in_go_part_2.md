@@ -133,7 +133,7 @@ I did end up on a lovely aside studying the [Go GC](https://tip.golang.org/doc/g
 
 ## Attempt 3
 
-## Escape analysis
+### Escape analysis
 
 For my third attempt I sought to avoid all heap allocations in the work function.
 
