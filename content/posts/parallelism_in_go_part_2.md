@@ -18,7 +18,12 @@ If we think about a normal application running on the operating system, the "job
 
 When thinking about go applications, goroutines are the concurrency primitive and we don't think about threads. But do the number of goroutines used for parallelising CPU bound work matter? Unlike threads, goroutines do not incur a large penalty when context switched off a logical processor, thanks to their light design. However it should still hold true, that spinning up more goroutines than logical processors, won't achieve more parallelism. We are still limited by the number of logical CPUs available.
 
-With this in mind, I set out to demonstrate this effect with a few benchmarks. I created some cpu bound work, parallelized using the `Do` function of the last post, and increased the goroutine workers each time to see how performance was affected. I hypothesized that as you increase workers to the number of logical CPUs, that performance would improve. I also hypothesized that after increasing workers beyond that number, performance would stay the same or eventually get worse. 
+With this in mind, I set out to demonstrate this effect with a few benchmarks. I created some cpu bound work, parallelized it using the `Do` function of the last post, and increased the goroutine workers each time to see how performance was affected. I hypothesized that:
+1. as workers increased to the number of logical CPUs, performance should improve.
+2. after increasing workers beyond the number of logical CPUs, performance should get worse.
+
+The reason why I believed that performance would get worse after increasing workers beyond logical CPUs, was because even though go routines are light, spawning them still has a cost. They have to be created and scheduled onto logical processors. Since there wouldn't be any more parallel yield after passing the number of logical CPUs, I theorized the extra goroutines would just add additional cost, therefore resulting in poorer execution time.
+
 
 This seemed pretty straightforward to me, but after benchmarking I found some pretty weird results...
 
@@ -72,7 +77,7 @@ For this attempt I ran the the benchmarks in 3 environments to get some comparis
 - Windows - 6 cores
 - Mac - 8 cores
 
-My expectation was that performance would increase as you increased workers up to the number of logical CPUs (which on the Mac was 16 and on the Windows and WSL was 12). I was then hoping to see performance decrease a little after that number. The reason why I believed that performance would decrease after workers > logical CPUs was because I am aware that even though goroutines are lightweight, they still incur a penalty for being scheduled on and off logical processors. I was expecting to see the execution time of the benchmark jump up as a result of this penalty.
+My expectation was that performance would increase as you increased workers up to the number of logical CPUs (which on the Mac was 16 and on the Windows and WSL was 12). I was then hoping to see performance decrease after that number.
 
 I should also note at this point, that I was paying close attention to [Dave Cheney's guide on benchmarks](https://dave.cheney.net/tag/benchmarking). He always suggests to run multiple instances of your benchmarks and then average them out. He also advises that you run some heavy benchmark prior to the real one because CPUs are sometimes lazy and don't perform until you give them a really hefty workload. I did both of these things when gathering my results. Every benchmark run 3 times before moving onto the next number of workers. Additionally I ran the entire benchmark command 3 times. In the end I had 9 results for each worker. Using some spreadsheeting, I took the averages and graphed the results.
 
