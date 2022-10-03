@@ -74,13 +74,15 @@ For this attempt I ran the the benchmarks in 3 environments to get some comparis
 
 My expectation was that performance would increase as you increased workers up to the number of logical CPUs (which on the Mac was 16 and on the Windows and WSL was 12). I was then hoping to see performance decrease a little after that number. The reason why I believed that performance would decrease after workers > logical CPUs was because I am aware that even though goroutines are lightweight, they still incur a penalty for being scheduled on and off logical processors. I was expecting to see the execution time of the benchmark jump up as a result of this penalty.
 
-I should also note at this point, that I was paying close attention to [Dave Chetney's guide on benchmarks](https://dave.cheney.net/high-performance-go). He always suggests to run multiple instances of your benchmarks and then average them out. He also advises that you run some heavy benchmark prior to the real one because CPUs are sometimes lazy and don't perform until you give them a really hefty workload. I did both of these things when gathering my results. Every benchmark run 3 times before moving onto the next number of workers. Additionally I ran the entire benchmark command 3 times. In the end I had 9 results for each worker. Using some spreadsheeting, I took the averages and graphed the results.
+I should also note at this point, that I was paying close attention to [Dave Cheney's guide on benchmarks](https://dave.cheney.net/tag/benchmarking). He always suggests to run multiple instances of your benchmarks and then average them out. He also advises that you run some heavy benchmark prior to the real one because CPUs are sometimes lazy and don't perform until you give them a really hefty workload. I did both of these things when gathering my results. Every benchmark run 3 times before moving onto the next number of workers. Additionally I ran the entire benchmark command 3 times. In the end I had 9 results for each worker. Using some spreadsheeting, I took the averages and graphed the results.
 
 ![](/images/cpubound1.png)
 
+This graph showed what I was expecting to see. On the y-axis is execution time and on the x-axis is the number of goroutine workers used by the `Do` function to complete the work. In each test the amount of work completed was the same. As goroutine workers increased to the number of logical CPUs on each environment (windows & wsl = 12, mac = 16), execution time decreased.
+
 ![](/images/cpubound2.png)
 
-The results surprised me a little. Yes execution time decreased as you increased goroutine workers. However I was expecting performance to decrease after workers surpassed the number of logical CPUs on each machine. In fact the opposite happened: as workers surpassed logical CPUs performance improved! What's more is that the result for the Mac was showing that the best result was when workers was 8 which was half the number of lofical processors! This was a very weird result and I was puzzled by it.
+However upon zooming into the above graph, something weird was happening. Instead of performance getting worse after passing logical CPUs for each environment, performance improved! This was not what expected at all. I hypothesized that increasing goroutines beyond logical CPUs would incur a performance penalty!
 
 ## Attempt 2
 
@@ -102,17 +104,19 @@ I ran the tests again but this time just on my Mac and WSL environments:
 
 The results were better. This time I saw that the execution time for the Mac tests didn't increase after 8 workers. However I was still puzzled why performance was getting better after surpassing the number of logical CPUs. Specifically the workers = 24 result was 240ms faster than than the workers = 12 result (1.12% speed up).
 
-At this point I thought it might be a good idea to look at CPU and Memory profiles as well as execution traces.
+At this point I thought it might be a good idea to look at CPU and Memory profiles.
 
+```sh
+go test -cpuprofile=wsl-cpu-12.out -run=^$ -bench ^BenchmarkDoCPUBoundWorkV2/workers_12$ .
+go test -benchmem -memprofile=wsl-mem-12.out -run=^$ -bench ^BenchmarkDoCPUBoundWorkV2/workers_12$ .
+go test -cpuprofile=wsl-cpu-24.out -run=^$ -bench ^BenchmarkDoCPUBoundWorkV2/workers_24$ .
+go test -benchmem -memprofile=wsl-mem-24.out -run=^$ -bench ^BenchmarkDoCPUBoundWorkV2/workers_24$ .
 ```
-go test -cpuprofile=wsl-cpu-12.out -benchmem -memprofile=wsl-mem-12.out -run=^$$ -bench ^BenchmarkDoCPUBoundWorkV2/workers_12$$ .
-go test -cpuprofile=wsl-cpu-24.out -benchmem -memprofile=wsl-mem-24.out -run=^$$ -bench ^BenchmarkDoCPUBoundWorkV2/workers_24$$ .
-```
 
-CPU traces revealed that both processes were almost identical. Some extra time was being spent in some abstract runtime functions. I am not smart enough to work out why. I looked at the memory traces and noticed a huge amount of memory being allocated on the heap throughout the test. This was not at all surprising, after all I was trying to generate steam. But it got me thinking... my test could just be too noisy for me to really see the result I was after. It was just possible that I was testing too many mechanics at once that were all interfering with eachother.
+CPU traces revealed that both processes were almost identical. Some extra time was being spent in some abstract runtime functions. I am not smart enough to work out why. I looked at the memory traces and noticed a huge amount of memory being allocated on the heap throughout the test. This was not at all surprising, after all I was trying to generate steam. But it got me thinking... my test could just be too noisy for me to really see the result I was after. It was just possible that I was testing too many mechanics at once that were all interfering with each other.
 
 
-I did end up on a lovely aside studying the [Go GC](https://tip.golang.org/doc/gc-guide) though. It didn't help me pinpoint the exact cause but it left we with a sense that "the GC is a complex beast" and that I needed to remove as much noise as possible from this test if I really wanted to see the result I was after.
+I did end up on a lovely aside studying the [Go GC](https://tip.golang.org/doc/gc-guide) though. It didn't help me pinpoint the exact cause but it left we with a sense that "the GC is a complex beast" and that I needed to remove it as much as possible if I really wanted to see the result I was after.
 
 ## Attempt 3
 
@@ -136,12 +140,12 @@ For my third attempt I sought to avoid all heap allocations in the work function
 
 Without much analysis, there were some obvious ones:
 1. For every piece of work, a byte array was being allocated on line 4.
-2. For every iteration of the loop, `strconv.FormatUint` was almost certainly allocating a string on line 9
+2. For every iteration of the loop, `strconv.FormatUint` was allocating a string on line 9
 
 I changed the above function to this and ran it again:
 
 ```go
-/*1*/ func cpuBoundWorkFunc(input string) (uint64, error) {
+/*1*/ func cpuBoundWorkFunc(input uint64) (uint64, error) {
 /*2*/ 	const hashLoopCt = 10000
 /*3*/ 	barr := make([]byte, 8)
 /*4*/ 	for i := 0; i < hashLoopCt; i++ {
@@ -152,7 +156,7 @@ I changed the above function to this and ran it again:
 /*9*/ }
 ```
 
-Although I hadn't eliminated the allocation per work (line 3), I wasn't too concerned because this allocation looked pretty safe to be kept in stack memory. It shouldn't escape to the heap. Additionally I was able to avoid a string allocation each time by modifying my hash function. Instead of converting the output `int64` to its `string` representation in ascii characters, I was simply encoding it in the `byte` array already allocated (line 5).
+Although I hadn't eliminated the allocation per work (line 3), I wasn't too concerned because this allocation looked like it wouldn't "escape to the heap". Instead this change avoided an allocation on each iteration of the loop by encoding the hash output into an existing byte array rather than creating a new one.
 
 To be sure I ran some escape analysis using the go compiler:
 
@@ -210,11 +214,11 @@ With this new work function, I reran my test and here were my results:
 
 ![](/images/cpubound6.png)
 
-There was a strange increase in execution at workers = 2 which seemed odd. However apart from this my test results resembled the previous ones in many ways. Just like the previous results execution trended down while workers < logical CPUs. However after that execution time trended upwards. I was fairly puzzled by the result so I studied execution and memory profiles again. Just like last time, nothing stood out except that more time was spent in runtime functions when workers was lower. It did occur to me though that although my test might be free from heap allocations, murmur3 was quite a complex function itself and could be introducing noise too. Perhaps murmur3 was introducing complex mechanics that were all interfering with each other at the same time. This led me to one final test where I sought to eliminate all noise!
+There was a strange increase in execution at workers = 2 which seemed odd. However apart from this my test results resembled the previous ones in many ways. Just like the previous results, execution trended down while workers was lower than logical CPUs. However, after workers was greater than logical CPUs, execution time trended upwards. I was fairly puzzled by the result so I studied execution and memory profiles again. Just like last time, nothing stood out except that more time was spent in runtime functions when workers was lower. It did occur to me though, that although my test might be free from heap allocations, murmur3 was quite a complex function itself and could be introducing noise too. Perhaps murmur3 was introducing complex mechanics that were all interfering with each other at the same time. This led me to one final test where I sought to eliminate all noise!
 
 ### Attempt 4
 
-For my final attempt I decided to eliminate murmur3 completely. This way, there would be no unexpected side effects created from the complexities within the hash function. I created a simple work function whose job was to count to 10 million!
+For my final attempt I decided to eliminate murmur3 completely. This way, there would be no unexpected side effects created from the complexities within the hash function. I created a simple work function whose job was to count to 1 million!
 
 ```go
 func cpuBoundWorkFuncV4(input uint64) (uint64, error) {
@@ -231,15 +235,14 @@ Why the `x = i % 2`? I wanted to create a little more work than just iterating i
 
 I ran the test and these were my results:
 
-![](/images/cpubound8.png)
 ![](/images/cpubound9.png)
 ![](/images/cpubound10.png)
-
-Like before, execution time decreased as workers approach logical CPUs, and some higher values of workers out performed the result when workers was equal to logical CPUs. However in this test I noticed that execution time was trending up after workers surpassed logical CPUs. This led me to believe I was onto something. I ran the test for up to 100 workers and here were the results:
-
 ![](/images/cpubound11.png)
 
-And then I ran it up to 180 workers:
+Like before, execution time decreased as workers approach logical CPUs, and some higher values of workers out performed the result when workers was equal to logical CPUs. However in this test I noticed that execution time was trending up after workers surpassed logical CPUs (as seen in the last graph with up to 100 workers). This led me to believe I was onto something.
+
+
+So I ran it up to 180 workers:
 
 ![](/images/cpubound12.png)
 
@@ -247,30 +250,25 @@ And then all the way to 1000 workers:
 
 ![](/images/cpubound13.png)
 
-Finally I could see what I was looking for! Plotting the trendline revealed a 0.0005ms (500ns) increase in execution per goroutine added. Whether this is from scheduling costs or the cost to boot the goroutine in the first place, I don't know. What we can deduce is that this is an extremely small and therefore insignificant penalty for spinning up a goroutine. I was admitedly expecting something much worse but in the end only found a meer 500ns penalty!
+Finally I could see what I was looking for! Plotting the trendline revealed a 0.0005ms (500ns) increase in execution per goroutine added. Whether this was from scheduling costs or just the cost to boot the goroutine, I don't know. What we can deduce is that this is an extremely small and therefore insignificant penalty for spinning up a goroutine. I was admitedly expecting something much worse but in the end only found a meer 500ns penalty!
 
-The lesson learnt was that:
-1. Yes execution time improves as your goroutine workers approach the available number of logical CPUs. This make sense because this allows your workload to parallelized onto all the available cores. 
-2. As to whether there is a penalty for going beyond this number, I would say its insignificant and you shouldn't worry about it. In the majority of applications 500ns is neither here nor there. 
-3. Lastly function complexity contributes to noise in an application which makes it worthless to try and isolate factors like the number of goroutines.
+Lessons learnt:
+1. Execution time improves as your goroutine workers approach the available number of logical CPUs. This make sense because your workload can be parallelized onto all the available cores. 
+2. There is a penalty for creating more go routines than logical CPUs BUT the penalty is insignificant and you shouldn't worry about it. 500ns is nothing.
+3. Function complexity contributes to noise in an application which makes it worthless to try and isolate factors like the number of goroutines.
 
 
-This last point rings home for me after a few years of working on production issues and optimising code. Often you will be asked to "make service x" faster. Sometimes you find that certain operations are slow, or the GC is thrashing your application. You can try to optimise the GC and or allocate more CPU to your application to solve these issues. However at a certain point this approach won't work any more. Instead you have to go the source: reduce allocations and optimize functions that burn lots of CPU. 
+This last point rings home for me after a few years of working on production issues and optimising code. Often you will be asked to "make service x" faster. Sometimes you find that certain operations are slow, or the GC is thrashing your application. You can try to tweaking the GC settings and/or allocating more resources to solve these issues. However at a certain point this approach won't work any more. Instead you have to go the source: reduce allocations and optimize functions that burn lots of CPU. This whole exercise felt like a mirror of this truth.
 
-And finally there is one more lesson I would like to share with you from my own personal experience:
-
-Optimised code comes with a trade off that you need to be willing to accept. It increases code complexity which inherently makes it:
+From personal experience I have also learned that optimising code comes with trade offs. Optimised code will generally make it...
 1. harder to train new developers
-2. harder to follow business requirements
+2. harder to follow changing business requirements
 3. harder to debug/maintain
 
-Optimisation is not the root of all evil but does need to be done with wisdom, as to not make your life harder later on.
-
-These are some of the pearls I have taken from a few years of working with go applications and optimising code.
-
+Optimisation can and should be done, but it comes with a price. Its all about judging whether that price is worth it.
 
 ## Conclusion
 
-For CPU bound work, parallelize as much as logical CPUs available (`runtime.NumCPU()` will do it for you), and reduce allocations / complexity in work functions wherever possible.
+For CPU bound work, spawning as many goroutines as there are logical CPUs will allow you to use all the available resources. `runtime.NumCPU()` can be used find out the number of logical CPUs at runtime. If you happen to go beyond that, it doesn't really matter :)
 
 
