@@ -157,7 +157,7 @@ Without much analysis, there were some obvious ones:
 1. For every piece of work, a byte array was being allocated on line 4.
 2. For every iteration of the loop, `strconv.FormatUint` was allocating a string on line 9
 
-I changed the above function to this and ran it again:
+I changed the above function to this:
 
 ```go
 /*1*/ func cpuBoundWorkFunc(input uint64) (uint64, error) {
