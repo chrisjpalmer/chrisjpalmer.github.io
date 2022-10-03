@@ -81,7 +81,7 @@ For this attempt I ran the the benchmarks in 3 environments to get some comparis
 
 My expectation was that performance would increase as you increased workers up to the number of logical CPUs (which on the Mac was 16 and on the Windows and WSL was 12). I was then hoping to see performance decrease after that number.
 
-I should also note at this point, that I was paying close attention to [Dave Cheney's guide on benchmarks](https://dave.cheney.net/tag/benchmarking). He always suggests to run multiple instances of your benchmarks and then average them out. He also advises that you run some heavy benchmark prior to the real one because CPUs are sometimes lazy and don't perform until you give them a really hefty workload. I did both of these things when gathering my results. Every benchmark run 3 times before moving onto the next number of workers. Additionally I ran the entire benchmark command 3 times. In the end I had 9 results for each worker. Using some spreadsheeting, I took the averages and graphed the results.
+I should also note at this point, that I was paying close attention to [Dave Cheney's guide on benchmarks](https://dave.cheney.net/tag/benchmarking). He always suggests to run multiple instances of your benchmarks and then average them out. He also advises that you run some heavy benchmark prior to the real one because CPUs are sometimes lazy and don't perform until you give them a really hefty workload. I did both of these things when gathering my results. Every benchmark run was 3 times before moving onto the next number of workers. Additionally I ran the entire benchmark command 3 times. In the end I had 9 results for each number of workers that I wanted to test.
 
 ![](/images/cpubound1.png)
 
