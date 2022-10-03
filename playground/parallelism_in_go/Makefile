@@ -21,20 +21,21 @@ bench-cpubound:
 bench-cpubound-moreworkers:
 	cd parallel && go test -run=^$$ -bench ^BenchmarkDoCPUBoundWorkMoreWorkers$$ .
 
+bench-cpubound-cpumem-wsl:
+	# warm up
+	cd parallel && go test -count=5 -run=^$$ -bench ^BenchmarkDoCPUBoundWork$$/workers_24$$ .
+
+	# run test
+	cd parallel && go test -benchtime=1x -cpuprofile=v1-wsl-cpu-12.out -run=^$$ -bench ^BenchmarkDoCPUBoundWork$$/workers_12$$ .
+	cd parallel && go test -benchtime=1x -benchmem -memprofile=v1-wsl-mem-12.out -run=^$$ -bench ^BenchmarkDoCPUBoundWork$$/workers_12$$ .
+	cd parallel && go test -benchtime=1x -trace=v1-wsl-trace-12.out -run=^$$ -bench ^BenchmarkDoCPUBoundWork$$/workers_12$$ .
+	cd parallel && go test -benchtime=1x -cpuprofile=v1-wsl-cpu-24.out -run=^$$ -bench ^BenchmarkDoCPUBoundWork$$/workers_24$$ .
+	cd parallel && go test -benchtime=1x -benchmem -memprofile=v1-wsl-mem-24.out -run=^$$ -bench ^BenchmarkDoCPUBoundWork$$/workers_24$$ .
+	cd parallel && go test -benchtime=1x -trace=v1-wsl-trace-24.out -run=^$$ -bench ^BenchmarkDoCPUBoundWork$$/workers_24$$ .
+
 ## CPUBOUND V2
 bench-cpubound-moreworkersv2:
 	cd parallel && go test -run=^$$ -bench ^BenchmarkDoCPUBoundWorkMoreWorkersV2$$ .
-
-benchv2:
-	cd parallel && go test -count=3 -run=^$$ -bench ^BenchmarkDoCPUBoundWorkV2$$ .
-	cd parallel && go test -count=3 -run=^$$ -bench ^BenchmarkDoCPUBoundWorkMoreWorkersV2$$ .
-	cd parallel && go test -count=3 -run=^$$ -bench ^BenchmarkDoCPUBoundWorkV2$$ .
-	cd parallel && go test -count=3 -run=^$$ -bench ^BenchmarkDoCPUBoundWorkMoreWorkersV2$$ .
-	cd parallel && go test -count=3 -run=^$$ -bench ^BenchmarkDoCPUBoundWorkV2$$ .
-	cd parallel && go test -count=3 -run=^$$ -bench ^BenchmarkDoCPUBoundWorkMoreWorkersV2$$ .
-
-bench-cpuboundv2:
-	cd parallel && go test -run=^$$ -bench ^BenchmarkDoCPUBoundWorkV2$$ .
 
 bench-cpuboundv2-count3:
 	cd parallel && go test -timeout=2h -count=3 -run=^$$ -bench ^BenchmarkDoCPUBoundWorkV2$$ .	
@@ -42,7 +43,6 @@ bench-cpuboundv2-count3:
 	cd parallel && go test -timeout=2h -count=3 -run=^$$ -bench ^BenchmarkDoCPUBoundWorkV2$$ .		
 
 bench-cpuboundv2-cpumem-wsl:
-	# for wsl
 	cd parallel && go test -cpuprofile=v2-wsl-cpu-8.out -benchmem -memprofile=v2-wsl-mem-8.out -run=^$$ -bench ^BenchmarkDoCPUBoundWorkV2$$/workers_8$$ .
 	cd parallel && go test -cpuprofile=v2-wsl-cpu-12.out -benchmem -memprofile=v2-wsl-mem-12.out -run=^$$ -bench ^BenchmarkDoCPUBoundWorkV2$$/workers_12$$ .
 	cd parallel && go test -cpuprofile=v2-wsl-cpu-24.out -benchmem -memprofile=v2-wsl-mem-24.out -run=^$$ -bench ^BenchmarkDoCPUBoundWorkV2$$/workers_24$$ .
@@ -53,7 +53,6 @@ bench-cpuboundv2-cpumem-mac:
 	cd parallel && go test -cpuprofile=v2-mac-cpu-24.out -benchmem -memprofile=v2-mac-mem-24.out -run=^$$ -bench ^BenchmarkDoCPUBoundWorkV2$$/workers_24$$ .
 
 bench-cpuboundv2-trace-wsl:
-	# for wsl
 	cd parallel && go test -trace=v2-wsl-trace-8.out -run=^$$ -bench ^BenchmarkDoCPUBoundWorkV2$$/workers_8$$ .
 	cd parallel && go test -trace=v2-wsl-trace-12.out -run=^$$ -bench ^BenchmarkDoCPUBoundWorkV2$$/workers_12$$ .
 	cd parallel && go test -trace=v2-wsl-trace-24.out -run=^$$ -bench ^BenchmarkDoCPUBoundWorkV2$$/workers_24$$ .
